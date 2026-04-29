@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>🦞 青春回忆录</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --primary: #8B5CF6; --primary-light: #A78BFA; --primary-dark: #7C3AED;
+  --bg: #F5F3FF; --card: #FFF; --text: #1F2937; --text-light: #6B7280;
+  --border: #E5E7EB; --shadow: 0 1px 3px rgba(0,0,0,0.1);
+  --radius: 16px;
+}
+body { font-family: -apple-system,'PingFang SC','Microsoft YaHei',sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+.nav { background: linear-gradient(135deg,var(--primary),#EC4899); padding: 12px 16px; display: flex; align-items: center; gap: 8px; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 10px rgba(139,92,246,0.3); }
+.nav h1 { color: #fff; font-size: 18px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.nav-tabs { display: flex; gap: 4px; overflow-x: auto; flex: 1; }
+.nav-tab { white-space: nowrap; padding: 5px 12px; border-radius: 16px; background: rgba(255,255,255,0.2); color: #fff; font-size: 12px; cursor: pointer; border: none; transition: 0.2s; flex-shrink: 0; }
+.nav-tab.active { background: #fff; color: var(--primary); font-weight: 600; }
+.login-screen { position: fixed; inset: 0; background: linear-gradient(135deg,#667eea 0%,#764ba2 100%); z-index: 1000; display: flex; align-items: center; justify-content: center; }
+.login-box { background: #fff; border-radius: 24px; padding: 36px 28px; width: 90%; max-width: 340px; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+.login-box h2 { font-size: 26px; margin-bottom: 6px; }
+.login-box p { color: var(--text-light); font-size: 14px; margin-bottom: 20px; }
+.login-box input { width: 100%; padding: 12px 16px; border: 2px solid var(--border); border-radius: 12px; font-size: 16px; margin-bottom: 12px; outline: none; transition: 0.2s; }
+.login-box input:focus { border-color: var(--primary); }
+.login-box button { width: 100%; padding: 12px; background: var(--primary); color: #fff; border: none; border-radius: 12px; font-size: 16px; cursor: pointer; }
+.login-box button:hover { background: var(--primary-dark); }
+.login-error { color: #EF4444; font-size: 13px; margin-top: 8px; display: none; }
+.main { display: none; padding: 12px; max-width: 800px; margin: 0 auto; }
+.main.active { display: block; }
+.card { background: var(--card); border-radius: var(--radius); padding: 16px; box-shadow: var(--shadow); margin-bottom: 12px; }
+.card h3 { font-size: 17px; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+.search-box { display: flex; gap: 8px; margin-bottom: 12px; }
+.search-box input { flex: 1; padding: 9px 14px; border: 2px solid var(--border); border-radius: 10px; font-size: 14px; outline: none; }
+.search-box input:focus { border-color: var(--primary); }
+.search-box button { padding: 9px 16px; background: var(--primary); color: #fff; border: none; border-radius: 10px; cursor: pointer; font-size: 13px; }
+.info-card { background: #F9F8FF; border-radius: 12px; padding: 14px; margin-bottom: 10px; border: 1px solid var(--border); }
+.info-card .name { font-size: 17px; font-weight: 600; color: var(--primary); }
+.info-card .detail { font-size: 13px; color: var(--text-light); margin-top: 3px; }
+.info-card .detail span { color: var(--text); }
+.btn { padding: 9px 18px; border-radius: 10px; border: none; font-size: 13px; cursor: pointer; transition: 0.2s; }
+.btn-primary { background: var(--primary); color: #fff; }
+.btn-primary:hover { background: var(--primary-dark); }
+.btn-outline { background: transparent; color: var(--primary); border: 2px solid var(--primary); }
+.btn-danger { background: #EF4444; color: #fff; }
+.btn-sm { padding: 5px 10px; font-size: 12px; }
+.form-group { margin-bottom: 10px; }
+.form-group label { display: block; font-size: 13px; color: var(--text-light); margin-bottom: 3px; }
+.form-group input,.form-group textarea { width: 100%; padding: 9px 12px; border: 2px solid var(--border); border-radius: 10px; font-size: 14px; outline: none; }
+.form-group input:focus,.form-group textarea:focus { border-color: var(--primary); }
+.form-group textarea { resize: vertical; min-height: 70px; }
+.canvas-container { position: relative; border: 2px solid var(--border); border-radius: 12px; overflow: hidden; background: #FFF8DC; margin-bottom: 10px; }
+.canvas-container canvas { display: block; width: 100%; height: 360px; cursor: crosshair; touch-action: none; }
+.canvas-tools { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; align-items: center; }
+.color-picker { width: 32px; height: 32px; border: 2px solid var(--border); border-radius: 50%; cursor: pointer; padding: 0; }
+.photo-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(130px,1fr)); gap: 10px; margin-top: 10px; }
+.photo-item { aspect-ratio: 1; border-radius: 10px; overflow: hidden; position: relative; box-shadow: var(--shadow); cursor: pointer; }
+.photo-item img { width: 100%; height: 100%; object-fit: cover; }
+.photo-item .delete-btn { position: absolute; top: 3px; right: 3px; background: rgba(239,68,68,0.85); color: #fff; border: none; border-radius: 50%; width: 22px; height: 22px; cursor: pointer; font-size: 13px; display: none; line-height: 22px; text-align: center; }
+.photo-item:hover .delete-btn { display: block; }
+.video-container { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 10px; }
+.video-container video { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+.message-item { background: #FFF7ED; border: 1px solid #FED7AA; border-radius: 12px; padding: 14px; margin-bottom: 10px; }
+.message-item .from { font-size: 12px; color: var(--text-light); margin-bottom: 6px; }
+.message-item .content { font-size: 15px; line-height: 1.6; }
+.toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: #1F2937; color: #fff; padding: 10px 20px; border-radius: 10px; font-size: 14px; z-index: 999; opacity: 0; transition: 0.3s; pointer-events: none; }
+.toast.show { opacity: 1; }
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 200; display: none; align-items: center; justify-content: center; padding: 20px; }
+.modal-overlay.active { display: flex; }
+.modal-content { background: #fff; border-radius: 20px; padding: 22px; width: 100%; max-width: 400px; max-height: 80vh; overflow-y: auto; }
+.modal-content h3 { margin-bottom: 14px; }
+.empty-state { text-align: center; padding: 30px 16px; color: var(--text-light); }
+.empty-state .icon { font-size: 42px; margin-bottom: 10px; }
+.inbox-item { background: #F0FDF4; border: 1px solid #86EFAC; border-radius: 12px; padding: 14px; margin-bottom: 10px; }
+.inbox-item .date { font-size: 12px; color: var(--text-light); margin-bottom: 6px; }
+.inbox-item .body { font-size: 15px; line-height: 1.6; }
+.letter-review { display: none; background: #FEF3C7; border: 1px solid #FCD34D; border-radius: 10px; padding: 10px 14px; margin-bottom: 10px; font-size: 13px; }
+hr { margin: 16px 0; border: none; border-top: 1px solid var(--border); }
+</style>
+</head>
+<body>
+
+<div class="login-screen" id="loginScreen">
+  <div class="login-box">
+    <h2>🦞</h2>
+    <h2>青春回忆录</h2>
+    <p>请输入你的姓名</p>
+    <input type="text" id="loginName" placeholder="你的姓名..." maxlength="20" autocomplete="off">
+    <button onclick="handleLogin()">进入</button>
+    <div class="login-error" id="loginError">请输入姓名</div>
+  </div>
+</div>
+
+<div class="nav">
+  <h1 id="navTitle">🦞 青春回忆录</h1>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="switchTab('classmate')">📋同学录</button>
+    <button class="nav-tab" onclick="switchTab('message')">💌赠言</button>
+    <button class="nav-tab" onclick="switchTab('photo')">📸相册</button>
+    <button class="nav-tab" onclick="switchTab('video')">🎬视频</button>
+    <button class="nav-tab" onclick="switchTab('graffiti')">🎨涂鸦</button>
+    <button class="nav-tab" onclick="switchTab('letter')">✉️匿名信</button>
+  </div>
+</div>
+
+<div class="main active" id="tab-classmate">
+  <div class="card">
+    <h3>📋 同学录</h3>
+    <div class="search-box">
+      <input type="text" id="classmateSearch" placeholder="搜同学姓名..." oninput="searchClassmate()">
+      <button onclick="searchClassmate()">搜索</button>
+      <button onclick="$('#classmateSearch').val('');renderClassmates();" class="btn btn-sm btn-outline">全部</button>
+    </div>
+    <div id="classmateList"></div>
+    <button class="btn btn-primary" style="width:100%;margin-top:8px;" onclick="showModal('classmateForm')">📝 录入我的信息</button>
+  </div>
+</div>
+
+<div class="main" id="tab-message">
+  <div class="card">
+    <h3>💌 同学赠言</h3>
+    <div class="search-box">
+      <input type="text" id="messageSearch" placeholder="搜同学姓名看赠言..." oninput="searchMessage()">
+      <button onclick="searchMessage()">查看</button>
+      <button onclick="$('#messageSearch').val('');renderMessages();" class="btn btn-sm btn-outline">全部</button>
+    </div>
+    <div id="messageList"></div>
+    <button class="btn btn-primary" style="width:100%;margin-top:8px;" onclick="showModal('messageForm')">✏️ 写赠言</button>
+  </div>
+</div>
+
+<div class="main" id="tab-photo">
+  <div class="card">
+    <h3>📸 回忆相册</h3>
+    <p style="color:var(--text-light);font-size:13px;margin-bottom:10px;">点击照片查看大图</p>
+    <input type="file" accept="image/*" multiple id="photoInput" style="display:none" onchange="uploadPhotos(event)">
+    <button class="btn btn-primary" onclick="document.getElementById('photoInput').click()">📤 上传照片</button>
+    <div class="photo-grid" id="photoGrid"></div>
+  </div>
+</div>
+
+<div class="main" id="tab-video">
+  <div class="card">
+    <h3>🎬 回忆视频</h3>
+    <p style="color:var(--text-light);font-size:13px;margin-bottom:10px;">视频存于 D:\龙虾\projects\青春回忆录\video\</p>
+    <div id="videoList"></div>
+    <input type="file" accept="video/*" id="videoFileInput" style="display:none" onchange="uploadVideo(event)">
+    <button class="btn btn-outline" onclick="document.getElementById('videoFileInput').click()">📤 上传视频</button>
+  </div>
+</div>
+
+<div class="main" id="tab-graffiti">
+  <div class="card">
+    <h3>🎨 课桌涂鸦</h3>
+    <div class="canvas-tools">
+      <button class="btn btn-sm" onclick="undoCanvas()">↩ 撤销</button>
+      <button class="btn btn-sm" onclick="clearCanvas()">🗑 清空</button>
+      <select id="brushSize" style="padding:3px 6px;border-radius:6px;border:1px solid var(--border);font-size:12px;" onchange="changeBrushSize()">
+        <option value="2">细</option>
+        <option value="5" selected>中</option>
+        <option value="10">粗</option>
+      </select>
+      <input type="color" class="color-picker" id="brushColor" value="#8B5CF6" onchange="changeBrushColor()">
+    </div>
+    <div class="canvas-container">
+      <canvas id="graffitiCanvas"></canvas>
+    </div>
+    <button class="btn btn-primary" style="width:100%;" onclick="saveGraffiti()">💾 保存涂鸦</button>
+  </div>
+</div>
+
+<div class="main" id="tab-letter">
+  <div class="card">
+    <h3>✉️ 匿名信件</h3>
+    <div class="form-group">
+      <label>收信人</label>
+      <input type="text" id="letterTo" placeholder="输入同学姓名...">
+    </div>
+    <div class="form-group">
+      <label>信件内容</label>
+      <textarea id="letterContent" placeholder="想对TA说的话..." rows="4"></textarea>
+    </div>
+    <div class="letter-review" id="letterReview"></div>
+    <button class="btn btn-primary" style="width:100%;" onclick="sendLetter()">📨 发送匿名信</button>
+    <hr>
+    <h3 style="margin-bottom:10px;">📥 我的收件箱</h3>
+    <div id="inboxList"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<div class="modal-overlay" id="modal-classmateForm">
+  <div class="modal-content">
+    <h3>📝 录入信息</h3>
+    <div class="form-group"><label>姓名 *</label><input type="text" id="cfName" placeholder="你的姓名"></div>
+    <div class="form-group"><label>班级</label><input type="text" id="cfClass" placeholder="如：高三(2)班"></div>
+    <div class="form-group"><label>学号</label><input type="text" id="cfStudentId" placeholder="学号"></div>
+    <div class="form-group"><label>手机号</label><input type="tel" id="cfPhone" placeholder="手机号"></div>
+    <div class="form-group"><label>微信号</label><input type="text" id="cfWechat" placeholder="微信号"></div>
+    <div style="display:flex;gap:8px;margin-top:14px;">
+      <button class="btn btn-primary" style="flex:1;" onclick="saveClassmate()">保存</button>
+      <button class="btn btn-outline" onclick="hideModal('classmateForm')">取消</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-messageForm">
+  <div class="modal-content">
+    <h3>✏️ 写赠言</h3>
+    <div class="form-group"><label>给谁 *</label><input type="text" id="mfTo" placeholder="同学姓名"></div>
+    <div class="form-group"><label>赠言 *</label><textarea id="mfContent" placeholder="想对TA说的话..." rows="4"></textarea></div>
+    <div style="display:flex;gap:8px;margin-top:14px;">
+      <button class="btn btn-primary" style="flex:1;" onclick="saveMessage()">发送</button>
+      <button class="btn btn-outline" onclick="hideModal('messageForm')">取消</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const DB_KEY = 'youth_memoir_v2';
+const API_URL = 'https://youth-memoir-production.up.railway.app';
+function $(s) { return document.querySelector(s); }
+function $$(s) { return document.querySelectorAll(s); }
+
+function getDB() {
+  try { return JSON.parse(localStorage.getItem(DB_KEY)) || defaultDB(); }
+  catch(e) { return defaultDB(); }
+}
+function saveDB(db) { localStorage.setItem(DB_KEY, JSON.stringify(db)); }
+function defaultDB() {
+  return { classmates: [], messages: [], photos: [], videos: [], graffiti: [], letters: [] };
+}
+
+let currentUser = '';
+const BAD_WORDS = ['他妈的','操','傻逼','fuck','shit','草泥马','你妈','sb','cnm','nmsl','wcnm','妈的','垃圾','废物','去死'];
+
+function handleLogin() {
+  const name = document.getElementById('loginName').value.trim();
+  if (!name) { document.getElementById('loginError').style.display = 'block'; return; }
+  document.getElementById('loginError').style.display = 'none';
+  currentUser = name;
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('navTitle').textContent = '🦞 青春回忆录 · ' + name;
+  renderAll();
+  showToast('👋 欢迎回来，' + name + '！');
+}
+
+function switchTab(tab) {
+  $$('.main').forEach(el => el.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  const tabs = ['classmate','message','photo','video','graffiti','letter'];
+  $$('.nav-tab').forEach((el, i) => el.classList.toggle('active', tabs[i] === tab));
+  if (tab === 'graffiti') setTimeout(initCanvas, 100);
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+function showModal(id) { document.getElementById('modal-' + id).classList.add('active'); }
+function hideModal(id) { document.getElementById('modal-' + id).classList.remove('active'); }
+
+function renderAll() { renderClassmates(); renderMessages(); renderPhotos(); renderVideos(); renderInbox(); }
+
+function formatDate(iso) {
+  try { return new Date(iso).toLocaleString('zh-CN',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}); }
+  catch(e) { return iso; }
+}
+
+// ========== 同学录 ==========
+function renderClassmates(filter) {
+  const db = getDB();
+  let list = filter ? db.classmates.filter(c => c.name.includes(filter)) : db.classmates;
+  const el = document.getElementById('classmateList');
+  if (!list.length) {
+    el.innerHTML = '<div class="empty-state"><div class="icon">📋</div><p>还没有人录入信息</p></div>';
+    return;
+  }
+  el.innerHTML = list.map(c => `
+    <div class="info-card">
+      <div class="name">${c.name}</div>
+      <div class="detail">📚 班级：<span>${c.class || '未填'}</span></div>
+      <div class="detail">🏫 学号：<span>${c.studentId || '未填'}</span></div>
+      <div class="detail">📱 手机：<span>${c.phone || '未填'}</span></div>
+      <div class="detail">💬 微信：<span>${c.wechat || '未填'}</span></div>
+      ${c.createdBy === currentUser ? '<button class="btn btn-sm btn-danger" onclick="deleteClassmate(\'' + c.name + '\')">删除</button>' : ''}
+    </div>
+  `).join('');
+}
+
+function searchClassmate() {
+  renderClassmates(document.getElementById('classmateSearch').value.trim());
+}
+
+function saveClassmate() {
+  const name = document.getElementById('cfName').value.trim();
+  if (!name) { showToast('请输入姓名'); return; }
+  const db = getDB();
+  const idx = db.classmates.findIndex(c => c.name === name && c.createdBy === currentUser);
+  const data = {
+    name, class: document.getElementById('cfClass').value.trim(),
+    studentId: document.getElementById('cfStudentId').value.trim(),
+    phone: document.getElementById('cfPhone').value.trim(),
+    wechat: document.getElementById('cfWechat').value.trim(),
+    createdBy: currentUser, createdAt: new Date().toISOString()
+  };
+  if (idx >= 0) db.classmates[idx] = data; else db.classmates.push(data);
+  saveDB(db); hideModal('classmateForm');
+  ['cfName','cfClass','cfStudentId','cfPhone','cfWechat'].forEach(id => document.getElementById(id).value = '');
+  renderAll(); showToast('✅ 信息已保存！');
+}
+
+function deleteClassmate(name) {
+  if (!confirm('确定删除 ' + name + ' 的信息吗？')) return;
+  const db = getDB();
+  db.classmates = db.classmates.filter(c => !(c.name === name && c.createdBy === currentUser));
+  saveDB(db); renderAll(); showToast('已删除');
+}
+
+// ========== 赠言 ==========
+function renderMessages(filter) {
+  const db = getDB();
+  let list = filter ? db.messages.filter(m => m.to.includes(filter)) : db.messages;
+  const el = document.getElementById('messageList');
+  if (!list.length) {
+    el.innerHTML = '<div class="empty-state"><div class="icon">💌</div><p>还没有赠言</p></div>';
+    return;
+  }
+  el.innerHTML = list.map(m => `
+    <div class="info-card">
+      <div class="name">给 ${m.to}</div>
+      <div class="detail" style="margin-top:6px;line-height:1.6;">${m.content}</div>
+      <div class="detail" style="margin-top:3px;font-size:11px;">${m.from} · ${formatDate(m.createdAt)}</div>
+      ${m.from === currentUser ? '<button class="btn btn-sm btn-danger" onclick="deleteMessage(\'' + m.createdAt + '\')">删除</button>' : ''}
+    </div>
+  `).join('');
+}
+
+function searchMessage() {
+  renderMessages(document.getElementById('messageSearch').value.trim());
+}
+
+function saveMessage() {
+  const to = document.getElementById('mfTo').value.trim();
+  const content = document.getElementById('mfContent').value.trim();
+  if (!to || !content) { showToast('请填写完整'); return; }
+  if (containsBadWord(content)) { showToast('⛔ 包含不当内容，请修改'); return; }
+  const db = getDB();
+  db.messages.push({ from: currentUser, to, content, createdAt: new Date().toISOString() });
+  saveDB(db); hideModal('messageForm');
+  document.getElementById('mfTo').value = ''; document.getElementById('mfContent').value = '';
+  renderAll(); showToast('💌 赠言已发送！');
+}
+
+function deleteMessage(ts) {
+  if (!confirm('确定删除？')) return;
+  const db = getDB();
+  db.messages = db.messages.filter(m => m.createdAt !== ts);
+  saveDB(db); renderAll(); showToast('已删除');
+}
+
+// ========== 照片 ==========
+function renderPhotos() {
+  const db = getDB();
+  const el = document.getElementById('photoGrid');
+  if (!db.photos.length) {
+    el.innerHTML = '<div class="empty-state"><div class="icon">📸</div><p>还没有照片</p></div>';
+    return;
+  }
+  el.innerHTML = db.photos.map(p => `
+    <div class="photo-item" onclick="viewPhoto('${p.id}')">
+      <img src="${p.dataUrl}" alt="photo">
+      ${p.uploadedBy === currentUser ? '<button class="delete-btn" onclick="event.stopPropagation();deletePhoto(\'' + p.id + '\')">×</button>' : ''}
+    </div>
+  `).join('');
+}
+
+function uploadPhotos(event) {
+  const files = event.target.files; if (!files.length) return;
+  const db = getDB();
+  let loaded = 0;
+  Array.from(files).forEach(file => {
+    if (!file.type.startsWith('image/')) { loaded++; return; }
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      db.photos.push({ id: Date.now() + '_' + Math.random().toString(36).substr(2,5), dataUrl: e.target.result, uploadedBy: currentUser, createdAt: new Date().toISOString() });
+      loaded++;
+      if (loaded === files.length) { saveDB(db); renderPhotos(); showToast('📸 照片已上传！'); }
+    };
+    reader.readAsDataURL(file);
+  });
+  event.target.value = '';
+}
+
+function deletePhoto(id) {
+  if (!confirm('确定删除？')) return;
+  const db = getDB(); db.photos = db.photos.filter(p => p.id !== id);
+  saveDB(db); renderPhotos(); showToast('已删除');
+}
+
+function viewPhoto(id) {
+  const db = getDB(); const p = db.photos.find(p => p.id === id);
+  if (p) window.open(p.dataUrl, '_blank');
+}
+
+// ========== 视频 ==========
+function renderVideos() {
+  const db = getDB();
+  const el = document.getElementById('videoList');
+  if (!db.videos.length) {
+    el.innerHTML = '<div class="empty-state"><div class="icon">🎬</div><p>还没有视频</p></div>';
+    return;
+  }
+  el.innerHTML = db.videos.map(v => `
+    <div class="card" style="padding:10px;margin-bottom:10px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+        <span>🎬 ${v.name}</span>
+        ${v.uploadedBy === currentUser ? '<button class="btn btn-sm btn-danger" onclick="deleteVideo(\'' + v.id + '\')">删除</button>' : ''}
+      </div>
+      <div class="video-container"><video controls src="${v.dataUrl}"></video></div>
+    </div>
+  `).join('');
+}
+
+function uploadVideo(event) {
+  const file = event.target.files[0]; if (!file) return;
+  if (!file.type.startsWith('video/')) { showToast('请选择视频'); return; }
+  const db = getDB(); const reader = new FileReader();
+  reader.onload = function(e) {
+    db.videos.push({ id: Date.now().toString(), name: file.name, dataUrl: e.target.result, uploadedBy: currentUser, createdAt: new Date().toISOString() });
+    saveDB(db); renderVideos(); showToast('🎬 视频已上传！');
+  };
+  reader.readAsDataURL(file); event.target.value = '';
+}
+
+function deleteVideo(id) {
+  if (!confirm('确定删除？')) return;
+  const db = getDB(); db.videos = db.videos.filter(v => v.id !== id);
+  saveDB(db); renderVideos(); showToast('已删除');
+}
+
+// ========== 涂鸦 ==========
+let canvas, ctx, isDrawing = false, lastX, lastY, history = [];
+
+function initCanvas() {
+  const c = document.getElementById('graffitiCanvas');
+  const container = c.parentElement;
+  c.width = container.clientWidth || 600;
+  c.height = 360;
+  canvas = c; ctx = c.getContext('2d');
+  ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  ctx.strokeStyle = document.getElementById('brushColor').value;
+  ctx.lineWidth = parseInt(document.getElementById('brushSize').value);
+
+  const db = getDB();
+  const mine = db.graffiti.filter(g => g.createdBy === currentUser);
+  if (mine.length) {
+    const img = new Image();
+    img.onload = function() { ctx.drawImage(img, 0, 0); };
+    img.src = mine[mine.length - 1].dataUrl;
+  }
+
+  canvas.onmousedown = function(e) { isDrawing = true; const r = canvas.getBoundingClientRect(); lastX = (e.clientX - r.left) * (canvas.width / r.width); lastY = (e.clientY - r.top) * (canvas.height / r.height); };
+  canvas.onmousemove = function(e) { if (!isDrawing) return; const r = canvas.getBoundingClientRect(); const x = (e.clientX - r.left) * (canvas.width / r.width); const y = (e.clientY - r.top) * (canvas.height / r.height); ctx.beginPath(); ctx.moveTo(lastX, lastY); ctx.lineTo(x, y); ctx.stroke(); lastX = x; lastY = y; };
+  canvas.onmouseup = function() { if (isDrawing) { isDrawing = false; history.push(canvas.toDataURL()); } };
+  canvas.onmouseleave = function() { if (isDrawing) { isDrawing = false; history.push(canvas.toDataURL()); } };
+
+  canvas.ontouchstart = function(e) { e.preventDefault(); const t = e.touches[0]; const r = canvas.getBoundingClientRect(); isDrawing = true; lastX = (t.clientX - r.left) * (canvas.width / r.width); lastY = (t.clientY - r.top) * (canvas.height / r.height); };
+  canvas.ontouchmove = function(e) { e.preventDefault(); if (!isDrawing) return; const t = e.touches[0]; const r = canvas.getBoundingClientRect(); const x = (t.clientX - r.left) * (canvas.width / r.width); const y = (t.clientY - r.top) * (canvas.height / r.height); ctx.beginPath(); ctx.moveTo(lastX, lastY); ctx.lineTo(x, y); ctx.stroke(); lastX = x; lastY = y; };
+  canvas.ontouchend = function() { if (isDrawing) { isDrawing = false; history.push(canvas.toDataURL()); } };
+}
+
+function changeBrushSize() { if (ctx) ctx.lineWidth = parseInt(document.getElementById('brushSize').value); }
+function changeBrushColor() { if (ctx) ctx.strokeStyle = document.getElementById('brushColor').value; }
+function clearCanvas() { if (!confirm('确定清空？')) return; ctx.clearRect(0,0,canvas.width,canvas.height); history = []; }
+function undoCanvas() { if (!history.length) return; history.pop(); ctx.clearRect(0,0,canvas.width,canvas.height); if (history.length) { const img = new Image(); img.onload = function() { ctx.drawImage(img,0,0); }; img.src = history[history.length - 1]; } }
+function saveGraffiti() {
+  const dataUrl = canvas.toDataURL();
+  const db = getDB();
+  db.graffiti.push({ id: Date.now().toString(), dataUrl, createdBy: currentUser, createdAt: new Date().toISOString() });
+  saveDB(db); showToast('🎨 涂鸦已保存！');
+}
+
+// ========== 匿名信 ==========
+function containsBadWord(text) {
+  const t = text.toLowerCase();
+  return BAD_WORDS.some(w => t.includes(w));
+}
+
+function sendLetter() {
+  const to = document.getElementById('letterTo').value.trim();
+  const content = document.getElementById('letterContent').value.trim();
+  if (!to || !content) { showToast('请填写完整'); return; }
+
+  // 敏感词审核
+  if (containsBadWord(content)) {
+    document.getElementById('letterReview').style.display = 'block';
+    document.getElementById('letterReview').textContent = '⛔ 内容包含不当词汇，请修改后重试';
+    return;
+  }
+
+  const db = getDB();
+  db.letters.push({ id: Date.now().toString(), to, content, from: currentUser, createdAt: new Date().toISOString() });
+  saveDB(db);
+  document.getElementById('letterTo').value = '';
+  document.getElementById('letterContent').value = '';
+  document.getElementById('letterReview').style.display = 'none';
+  renderInbox();
+  showToast('📨 匿名信已发送！');
+}
+
+function renderInbox() {
+  const db = getDB();
+  const myLetters = db.letters.filter(l => l.to === currentUser);
+  const el = document.getElementById('inboxList');
+  if (!myLetters.length) {
+    el.innerHTML = '<div class="empty-state"><div class="icon">✉️</div><p>还没有人给你写信</p></div>';
+    return;
+  }
+  el.innerHTML = myLetters.map(l => `
+    <div class="inbox-item">
+      <div class="date" style="font-size:11px;color:var(--text-light);margin-bottom:4px;">${formatDate(l.createdAt)}</div>
+      <div class="body">${l.content}</div>
+    </div>
+  `).join('');
+}
+
+</script>
+</body>
+</html>
